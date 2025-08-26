@@ -42,28 +42,24 @@ impl<'a, V: Ysc2Variant> StreamBackend for Backend<'a, V> {
 
 /// The state permutation function using portable SIMD.
 #[inline(always)]
-fn permutation_simd(state: &mut [u64; 16]) {
-    // 상태를 u64x4 벡터 4개로 변환
-    let mut s: [Simd<u64, 4>; 4] = [
+pub(crate) fn permutation<V: Ysc2Variant>(state: &mut [u64; 16]) {
+    let mut s: [u64x4; 4] = [
         Simd::from_slice(&state[0..4]),
         Simd::from_slice(&state[4..8]),
         Simd::from_slice(&state[8..12]),
         Simd::from_slice(&state[12..16]),
     ];
 
-    for r in 0..ROUNDS {
-        // 1. 라운드 상수 더하기
+    for r in 0..V::ROUNDS {
         s[0][0] ^= RC[r];
 
-        // 2. 비선형 계층
         let temp0 = g_vec(s[0]);
         let temp1 = g_vec(s[1]);
-        s[2] ^= temp0; // R' = R ^ g(L)
+        s[2] ^= temp0;
         s[3] ^= temp1;
-        s[0] ^= s[2]; // L' = L ^ R'
+        s[0] ^= s[2];
         s[1] ^= s[3];
 
-        // 3. 선형 계층
         let mut temp_state = [0u64; 16];
         s[0].write_to_slice(&mut temp_state[0..4]);
         s[1].write_to_slice(&mut temp_state[4..8]);
@@ -81,7 +77,6 @@ fn permutation_simd(state: &mut [u64; 16]) {
         s[3] = Simd::from_slice(&new_state_array[12..16]);
     }
 
-    // 최종 상태를 다시 원래 배열에 저장
     s[0].write_to_slice(&mut state[0..4]);
     s[1].write_to_slice(&mut state[4..8]);
     s[2].write_to_slice(&mut state[8..12]);
