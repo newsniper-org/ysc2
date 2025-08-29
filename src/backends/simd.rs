@@ -35,7 +35,7 @@ impl<'a, V: Ysc2Variant> StreamBackend for Backend<'a, V> {
         permutation::<V>(&mut working_state);
 
         for (i, chunk) in output.chunks_exact_mut(8).enumerate() {
-            chunk.copy_from_slice(&self.0.state[i].to_le_bytes());
+            chunk.copy_from_slice(&working_state[i].to_le_bytes());
         }
     }
 }
