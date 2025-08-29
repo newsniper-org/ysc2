@@ -1,0 +1,35 @@
+<svg font-family="sans-serif" font-size="13px" version="1.1" viewBox="0 0 400 543.75" xmlns="http://www.w3.org/2000/svg">
+ <style>.box { fill: #fff8e1; stroke: #ff8f00; stroke-width: 1.5; rx: 5; ry: 5; }
+        .label { text-anchor: middle; fill: #111; }
+        .code { font-family: monospace; font-size: 12px; }
+        .arrow { stroke: #333; stroke-width: 1.5; fill: none; }
+        .arrow-head { fill: #333; }</style>
+ <defs>
+  <marker id="arrowhead-v" markerHeight="7" markerWidth="10" orient="auto" refY="3.5">
+   <polygon class="arrow-head" points="10 3.5 0 7 0 0"/>
+  </marker>
+ </defs>
+ <rect width="400" height="543.75" fill="#fff"/>
+ <text class="label" x="200" y="30" font-size="14px">State_in [1024 bits]</text>
+ <path class="arrow" d="m200 40v20" marker-end="url(#arrowhead-v)"/>
+ <rect class="box" x="50" y="60" width="300" height="80"/>
+ <text class="label" x="200" y="85" font-weight="bold">1. 라운드 상수 덧셈</text>
+ <text class="label" x="200" y="105">(AddRoundConstant)</text>
+ <text class="label code" x="200" y="125">state[0] ^= RC[r]</text>
+ <path class="arrow" d="m200 140v20" marker-end="url(#arrowhead-v)"/>
+ <rect class="box" x="50" y="160" width="300" height="150"/>
+ <text class="label" x="200" y="185" font-weight="bold">2. 비선형 계층</text>
+ <text class="label" x="200" y="205">(Non-linear Layer)</text>
+ <text class="label code" x="200" y="230">L, R = state[0..8], state[8..16]</text>
+ <text class="label code" x="200" y="250">temp = g(L)</text>
+ <text class="label code" x="200" y="270">R_new = R ^ temp</text>
+ <text class="label code" x="200" y="290">L_new = L ^ R_new</text>
+ <path class="arrow" d="m200 310v20" marker-end="url(#arrowhead-v)"/>
+ <rect class="box" x="50" y="330" width="300" height="100"/>
+ <text class="label" x="200" y="355" font-weight="bold">3. 선형 계층</text>
+ <text class="label" x="200" y="375">(Linear Layer)</text>
+ <text class="label code" x="200" y="400">new_state[i] = state[P[i]]</text>
+ <text class="label code" x="200" y="415">*state = new_state</text>
+ <path class="arrow" d="m200 430v48" marker-end="url(#arrowhead-v)"/>
+ <text class="label" x="200" y="514" font-size="14px">State_out [1024 bits]</text>
+</svg>
