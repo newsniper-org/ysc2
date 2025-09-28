@@ -7,7 +7,7 @@ use crate::consts::*;
 use crate::stream::AuxCryptCore;
 use crate::variant::AuxCryptVariant;
 use cipher::{Block, BlockSizeUser, ParBlocksSizeUser, StreamBackend};
-use core::simd::prelude::*;
+use std::simd::*;
 
 /// The portable SIMD backend for AuxCrypt.
 pub struct Backend<'a, V: AuxCryptVariant>(pub(crate) &'a mut AuxCryptCore<V>);
@@ -36,8 +36,8 @@ impl<'a, V: AuxCryptVariant> StreamBackend for Backend<'a, V> {
 /// The vectorized non-linear function f(x).
 #[inline(always)]
 fn f_vec(x: u64x4) -> u64x4 {
-    let rot_a = x.rotate_lanes_left::<{ ROT_A as usize }>();
-    let rot_b = x.rotate_lanes_left::<{ ROT_B as usize }>();
+    let rot_a = x.rotate_elements_left::<{ ROT_A as usize }>();
+    let rot_b = x.rotate_elements_left::<{ ROT_B as usize }>();
     (!x) ^ rot_a ^ rot_b
 }
 
@@ -72,10 +72,10 @@ pub(crate) fn permutation<V: AuxCryptVariant>(state: &mut [u64; STATE_WORDS]) {
 
         // 3. Linear Layer (Word Permutation)
         let mut temp_state = [0u64; STATE_WORDS];
-        s0.write_to_slice(&mut temp_state[0..4]);
-        s1.write_to_slice(&mut temp_state[4..8]);
-        s2.write_to_slice(&mut temp_state[8..12]);
-        s3.write_to_slice(&mut temp_state[12..16]);
+        s0.copy_to_slice(&mut temp_state[0..4]);
+        s1.copy_to_slice(&mut temp_state[4..8]);
+        s2.copy_to_slice(&mut temp_state[8..12]);
+        s3.copy_to_slice(&mut temp_state[12..16]);
         
         let mut new_state_array = [0u64; STATE_WORDS];
         for i in 0..STATE_WORDS {
@@ -89,8 +89,8 @@ pub(crate) fn permutation<V: AuxCryptVariant>(state: &mut [u64; STATE_WORDS]) {
     }
 
     // Store SIMD vectors back to state
-    s0.write_to_slice(&mut state[0..4]);
-    s1.write_to_slice(&mut state[4..8]);
-    s2.write_to_slice(&mut state[8..12]);
-    s3.write_to_slice(&mut state[12..16]);
+    s0.copy_to_slice(&mut state[0..4]);
+    s1.copy_to_slice(&mut state[4..8]);
+    s2.copy_to_slice(&mut state[8..12]);
+    s3.copy_to_slice(&mut state[12..16]);
 }

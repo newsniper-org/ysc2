@@ -5,6 +5,10 @@
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+
+#![cfg(feature = "auxcrypt_simd")]
+#![feature(portable_simd)]
+
 // --- Module Declarations ---
 
 mod backends;

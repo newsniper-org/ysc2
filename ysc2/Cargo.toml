@@ -17,7 +17,8 @@ digest.workspace = true
 aead.workspace = true
 zeroize.workspace = true
 crypto-common.workspace = true
-auxcrypt = { path = "../auxcrypt", optional = true }
+auxcrypt = { path = "../auxcrypt", optional = true, package = "auxcrypt" }
+auxcrypt-simd = { path = "../auxcrypt", features = ["auxcrypt_simd"], optional = true, package = "auxcrypt" }
 rand_core = { version = "0.6.4", features = ["getrandom"] }
 
 [dev-dependencies]
@@ -29,6 +30,7 @@ default = []
 ysc2_simd = []
 ysc2x = []
 auxcrypt = [ "dep:auxcrypt" ]
+auxcrypt_simd = [ "dep:auxcrypt-simd" ]
 
 [package.metadata.docs.rs]
 all-features = true
