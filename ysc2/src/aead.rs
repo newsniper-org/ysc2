@@ -10,7 +10,7 @@ use core::marker::PhantomData;
 use aead::{
     consts::{U0, U16}, // 16바이트(128비트) Tag 크기 정의
     generic_array::GenericArray,
-    AeadCore, AeadInPlace, Key, KeyInit, KeySizeUser, Nonce, Tag,
+    AeadCore, AeadInPlace, Key, KeyInit, KeySizeUser, Nonce, Tag
 };
 use zeroize::ZeroizeOnDrop;
 

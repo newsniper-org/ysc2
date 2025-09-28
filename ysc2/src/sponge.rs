@@ -5,6 +5,7 @@
 //======================================================================
 
 use cipher::KeySizeUser;
+use digest::HashMarker;
 use crate::backends;
 use crate::consts::{RATE_BYTES, STATE_WORDS};
 use crate::variant::Ysc2Variant;
@@ -15,7 +16,7 @@ use digest::{
         Block, BlockSizeUser, Buffer, BufferKindUser, CoreWrapper,
         ExtendableOutputCore, FixedOutputCore, OutputSizeUser, UpdateCore, XofReaderCore,
     },
-    KeyInit, Output,
+    KeyInit, Output, MacMarker
 };
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
@@ -39,7 +40,7 @@ impl<V: Ysc2Variant> Ysc2xCore<V> {
         backends::permutation::<V>(&mut self.state);
     }
 
-    fn new<const N: usize>(inputs: [&[u8]; N]) -> Self {
+    fn new_from_raw<const N: usize>(inputs: [&[u8]; N]) -> Self {
         let flattend = inputs.concat();
         let mut core = Self::default();
         let (raw_blocks, rem) = flattend.as_chunks::<64>();
@@ -109,10 +110,9 @@ impl<V: Ysc2Variant> ExtendableOutputCore for Ysc2xCore<V> {
 
 // Keyed 모드를 위한 KeyInit 구현
 impl<V: Ysc2Variant> KeyInit for Ysc2xCore<V> {
-    
     fn new(key: &digest::Key<Self>) -> Self {
         let raw = [V::KEYED_DOMAIN.as_bytes(), key];
-        Self::new(raw)
+        Self::new_from_raw(raw)
     }
 }
 
@@ -152,6 +152,8 @@ impl<V: Ysc2Variant> XofReaderCore for Reader<V> {
     }
 }
 
+impl<V: Ysc2Variant> HashMarker for Ysc2xCore<V> {}
+
 //======================================================================
 // 고수준 API를 위한 타입 별칭 및 래퍼
 //======================================================================
@@ -162,18 +164,28 @@ pub type Hasher<V> = CoreWrapper<Ysc2xCore<V>>;
 
 /// `Ysc2xCore`를 감싸서 고정된 크기의 `Digest` 트레잇을 제공하는
 /// 해시 함수 타입입니다. (출력 크기: 64바이트)
-pub type Hash<V> = CoreWrapper<FixedOutputCoreWrapper<Ysc2xCore<V>>>;
+pub type Hash<V> = CoreWrapper<FixedOutputCoreWrapper<V>>;
 
 /// 고정 길이 출력을 위해 Ysc2xCore를 한번 더 감싸는 래퍼.
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct FixedOutputCoreWrapper<V: Ysc2Variant>(Ysc2xCore<V>);
+
+impl<V: Ysc2Variant> HashMarker for FixedOutputCoreWrapper<V> {}
+
+impl<V: Ysc2Variant> MacMarker for FixedOutputCoreWrapper<V> {}
+
+impl<V: Ysc2Variant> Default for FixedOutputCoreWrapper<V> {
+    fn default() -> Self {
+        Self(Ysc2xCore::<V>::default())
+    }
+}
 
 impl<V: Ysc2Variant> KeySizeUser for FixedOutputCoreWrapper<V> {
     type KeySize = V::KeySize;
 }
 
 impl<V: Ysc2Variant> KeyInit for FixedOutputCoreWrapper<V> {
-    fn new(key: &digest::Key<Self>) -> Self { Self(<Ysc2xCore<V> as KeyInit>::new(key)) }
+    fn new(key: &digest::Key<Self>) -> Self { Self(Ysc2xCore::<V>::new(key)) }
 }
 
 impl<V: Ysc2Variant> BlockSizeUser for FixedOutputCoreWrapper<V> {
@@ -199,4 +211,3 @@ impl<V: Ysc2Variant> FixedOutputCore for FixedOutputCoreWrapper<V> {
         *out = reader.read_block();
     }
 }
-

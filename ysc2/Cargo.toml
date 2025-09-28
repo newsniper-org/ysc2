@@ -18,6 +18,11 @@ aead.workspace = true
 zeroize.workspace = true
 crypto-common.workspace = true
 auxcrypt = { path = "../auxcrypt", optional = true }
+rand_core = { version = "0.6.4", features = ["getrandom"] }
+
+[dev-dependencies]
+# For reproducible key generation in tests without OsRng
+rand_chacha = "0.3.1"
 
 [features]
 default = []
