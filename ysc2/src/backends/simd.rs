@@ -1,14 +1,15 @@
 
-use crate::{arx, core::Ysc2StreamCore, Ysc2Variant};
+use crate::{stream::Ysc2StreamCore, variant::Ysc2Variant, consts::{ROT_A, ROT_B}};
 use cipher::{Block, BlockSizeUser, ParBlocksSizeUser, StreamBackend};
-use core::simd::prelude::*;
+use std::simd::{Simd, u64x4};
+use crate::consts::*;
 
 /// 비선형 함수 g(x)의 벡터 버전
 #[inline(always)]
 fn g_vec(x: Simd<u64, 4>) -> Simd<u64, 4> {
     // 각 u64 레인에 대해 비트 단위 회전을 수행합니다.
-    let rot_a = (x << Simd::splat(ROT_A as u64)) | (x >> Simd::splat(64 - ROT_A));
-    let rot_b = (x << Simd::splat(ROT_B as u64)) | (x >> Simd::splat(64 - ROT_B));
+    let rot_a = (x << Simd::splat(ROT_A as u64)) | (x >> Simd::splat(64u64 - ROT_A as u64));
+    let rot_b = (x << Simd::splat(ROT_B as u64)) | (x >> Simd::splat(64u64 - ROT_B as u64));
     x ^ (rot_a & rot_b)
 }
 
@@ -34,7 +35,7 @@ impl<'a, V: Ysc2Variant> StreamBackend for Backend<'a, V> {
 
         permutation::<V>(&mut working_state);
 
-        for (i, chunk) in output.chunks_exact_mut(8).enumerate() {
+        for (i, chunk) in block.chunks_exact_mut(8).enumerate() {
             chunk.copy_from_slice(&working_state[i].to_le_bytes());
         }
     }
@@ -61,10 +62,10 @@ pub(crate) fn permutation<V: Ysc2Variant>(state: &mut [u64; 16]) {
         s[1] ^= s[3];
 
         let mut temp_state = [0u64; 16];
-        s[0].write_to_slice(&mut temp_state[0..4]);
-        s[1].write_to_slice(&mut temp_state[4..8]);
-        s[2].write_to_slice(&mut temp_state[8..12]);
-        s[3].write_to_slice(&mut temp_state[12..16]);
+        s[0].copy_to_slice(&mut temp_state[0..4]);
+        s[1].copy_to_slice(&mut temp_state[4..8]);
+        s[2].copy_to_slice(&mut temp_state[8..12]);
+        s[3].copy_to_slice(&mut temp_state[12..16]);
         
         let mut new_state_array = [0u64; 16];
         for i in 0..16 {
@@ -77,8 +78,8 @@ pub(crate) fn permutation<V: Ysc2Variant>(state: &mut [u64; 16]) {
         s[3] = Simd::from_slice(&new_state_array[12..16]);
     }
 
-    s[0].write_to_slice(&mut state[0..4]);
-    s[1].write_to_slice(&mut state[4..8]);
-    s[2].write_to_slice(&mut state[8..12]);
-    s[3].write_to_slice(&mut state[12..16]);
+    s[0].copy_to_slice(&mut state[0..4]);
+    s[1].copy_to_slice(&mut state[4..8]);
+    s[2].copy_to_slice(&mut state[8..12]);
+    s[3].copy_to_slice(&mut state[12..16]);
 }

@@ -1,6 +1,9 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc = include_str!("../README.md")]
 
+#![cfg(feature = "ysc2_simd")]
+#![feature(portable_simd)]
+
 //======================================================================
 // src/lib.rs
 // 크레이트의 진입점. 공개 API를 선언하고 모듈을 구성합니다.
