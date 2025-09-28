@@ -12,7 +12,7 @@
  </defs>
  <rect class="background" width="600" height="450"/>
  <rect class="outer-box" x="1" y="1" width="598" height="350"/>
- <text class="label" x="300" y="25" font-size="16px" font-weight="bold">Ysc2Core</text>
+ <text class="label" x="300" y="25" font-size="16px" font-weight="bold">Ysc2StreamCore</text>
  <rect class="box" x="50" y="60" width="180" height="70"/>
  <text class="label" x="140" y="90">state [1024 bits]</text>
  <text class="label" x="140" y="110">(장기 상태)</text>

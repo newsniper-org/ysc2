@@ -1,19 +1,22 @@
-[package]
-name = "ysc2"
-version = "0.0.1"
-license = "BSD-2-Clause"
-edition = "2024"
-repository = "https://github.com/newsniper-org/ysc2"
-
 # To use the portable SIMD backend, you must build with the nightly toolchain
 # and enable the `portable_simd` feature flag via RUSTFLAGS.
 # Example: RUSTFLAGS='--cfg ysc2_simd' cargo +nightly build
 
-[dependencies]
-cfg-if = { version = "1.0.1", features = ["core"] }
-cipher = { version = "0.4.4", features = ["alloc", "dev", "rand_core", "zeroize"] }
-zeroize = { version = "1.8.1", features = ["zeroize_derive", "std", "simd", "derive"] }
+[workspace]
+resolver = "3"
+members = ["auxcrypt", "ysc2"]
 
-[features]
-default = []
-ysc2_simd = []
+[workspace.package]
+version = "0.1.0"
+authors = ["NEWSNIPER"]
+edition = "2024" # Rust 2024 에디션 사용
+license = "BSD-2-Clause"
+repository = "https://github.com/newsniper-org/ysc2"
+
+[workspace.dependencies]
+aead = { version = "0.5.2", features = ["alloc", "arrayvec", "bytes", "heapless", "std", "stream"] }
+cfg-if = { version = "1.0.1", features = ["core", "rustc-dep-of-std"] }
+cipher = { version = "0.4.4", features = ["alloc", "dev", "rand_core", "zeroize", "std"] }
+crypto-common = { version = "0.1.6", features = ["rand_core", "std"] }
+digest = { version = "0.10.7", features = ["alloc", "mac", "rand_core", "std"] }
+zeroize = { version = "1.8.1", features = ["zeroize_derive", "std", "simd", "derive"] }

@@ -1,30 +1,18 @@
 //======================================================================
-// src/core.rs
+// src/stream.rs
 // YSC2 순열의 핵심 로직을 추상화하는 트레잇 정의
 //======================================================================
 
-use cfg_if::cfg_if;
 use cipher::{
     BlockSizeUser, Iv, IvSizeUser, Key, KeyIvInit, KeySizeUser, StreamCipherCore, StreamCipherSeekCore
 };
 use core::marker::PhantomData;
 use crate::backends;
 
+use crate::variant::Ysc2Variant;
 
-/// YSC2 순열을 위한 핵심 트레잇입니다.
-/// 보안 수준별로 다른 파라미터(라운드 수, 키/Nonce 크기)를 정의합니다.
-pub trait Ysc2Variant : Sized {
-    /// Key size type and const.
-    type KeySize: cipher::ArrayLength<u8>;
-    const KEY_SIZE: usize;
-    /// Nonce size type and const.
-    type NonceSize: cipher::ArrayLength<u8>;
-    const NONCE_SIZE: usize;
-    
-    const ROUNDS: usize;
-}
 
-pub struct Ysc2Core<V: Ysc2Variant> {
+pub struct Ysc2StreamCore<V: Ysc2Variant> {
     /// The 1024-bit internal state (16 x 64-bit words).
     pub(crate) state: [u64; 16],
     /// The 64-bit block counter.
@@ -33,20 +21,20 @@ pub struct Ysc2Core<V: Ysc2Variant> {
     pub(crate) _variant: PhantomData<V>,
 }
 
-impl<V: Ysc2Variant> KeySizeUser for Ysc2Core<V> {
+impl<V: Ysc2Variant> KeySizeUser for Ysc2StreamCore<V> {
     type KeySize = V::KeySize;
 }
 
-impl<V: Ysc2Variant> IvSizeUser for Ysc2Core<V> {
+impl<V: Ysc2Variant> IvSizeUser for Ysc2StreamCore<V> {
     type IvSize = V::NonceSize;
 }
 
-impl<V: Ysc2Variant> BlockSizeUser for Ysc2Core<V> {
+impl<V: Ysc2Variant> BlockSizeUser for Ysc2StreamCore<V> {
     type BlockSize = cipher::consts::U128; // 1024-bit blocks
 }
 
-impl<V: Ysc2Variant> KeyIvInit for Ysc2Core<V> {
-    /// Creates a new `Ysc2Core` instance, initializing its state with the
+impl<V: Ysc2Variant> KeyIvInit for Ysc2StreamCore<V> {
+    /// Creates a new `Ysc2StreamCore` instance, initializing its state with the
     /// given key and nonce according to the specification.
     fn new(key: &Key<Self>, iv: &Iv<Self>) -> Self {
         let mut state = [0u64; 16];
@@ -70,13 +58,7 @@ impl<V: Ysc2Variant> KeyIvInit for Ysc2Core<V> {
         }
 
         // 2. Run the permutation for INIT_ROUNDS.
-        cfg_if! {
-            if #[cfg(feature = "ysc2_simd")] {
-                backends::simd::permutation::<V>(&mut state);
-            } else {
-                backends::soft::permutation::<V>(&mut state);
-            }
-        }
+        backends::permutation::<V>(&mut state);
         Self {
             state,
             counter: 0,
@@ -85,7 +67,7 @@ impl<V: Ysc2Variant> KeyIvInit for Ysc2Core<V> {
     }
 }
 
-impl<V: Ysc2Variant> StreamCipherCore for Ysc2Core<V> {
+impl<V: Ysc2Variant> StreamCipherCore for Ysc2StreamCore<V> {
     fn remaining_blocks(&self) -> Option<usize> {
         None
     }
@@ -93,17 +75,11 @@ impl<V: Ysc2Variant> StreamCipherCore for Ysc2Core<V> {
     /// Processes data by applying the keystream, delegating the core permutation
     /// to the backend selected at compile time.
     fn process_with_backend(&mut self, f: impl cipher::StreamClosure<BlockSize = Self::BlockSize>) {
-        cfg_if::cfg_if! {
-            if #[cfg(feature = "ysc2_simd")] {
-                f.call(&mut backends::simd::Backend(self));
-            } else {
-                f.call(&mut backends::soft::Backend(self));
-            }
-        }
+        f.call(&mut backends::Backend(self));
     }
 }
 
-impl<V: Ysc2Variant> StreamCipherSeekCore for Ysc2Core<V> {
+impl<V: Ysc2Variant> StreamCipherSeekCore for Ysc2StreamCore<V> {
     type Counter = u64;
 
     /// Gets the current block position (counter).

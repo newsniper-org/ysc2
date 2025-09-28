@@ -1,0 +1,20 @@
+[package]
+name = "auxcrypt"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "AuxCrypt: An auxiliary cryptographic scheme based on a 4D Lai-Massey structure."
+categories = ["cryptography"]
+keywords = ["stream-cipher", "permutation", "lai-massey"]
+
+[dependencies]
+cfg-if.workspace = true
+cipher.workspace = true
+zeroize.workspace = true
+crypto-common.workspace = true
+
+[features]
+default = []
+auxcrypt_simd = []

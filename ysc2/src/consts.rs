@@ -1,7 +1,13 @@
 //======================================================================
 // src/consts.rs
-// 라운드 상수 및 순열에 사용될 상수 정의
+// 각종 상수 정의
 //======================================================================
+
+pub const STATE_WORDS: usize = 16;
+pub const RATE_BYTES: usize = 64;
+
+/// The internal state size in bytes.
+pub const STATE_BYTES: usize = STATE_WORDS * 8;
 
 /// 라운드 상수 (RC) - 간단한 IOTA 값 사용
 pub const RC: [u64; 16] = [

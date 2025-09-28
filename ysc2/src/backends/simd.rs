@@ -1,5 +1,5 @@
 
-use crate::{arx, core::Ysc2Core, Ysc2Variant};
+use crate::{arx, core::Ysc2StreamCore, Ysc2Variant};
 use cipher::{Block, BlockSizeUser, ParBlocksSizeUser, StreamBackend};
 use core::simd::prelude::*;
 
@@ -13,7 +13,7 @@ fn g_vec(x: Simd<u64, 4>) -> Simd<u64, 4> {
 }
 
 /// The portable SIMD backend for YSC2.
-pub struct Backend<'a, V: Ysc2Variant>(pub(crate) &'a mut Ysc2Core<V>);
+pub struct Backend<'a, V: Ysc2Variant>(pub(crate) &'a mut Ysc2StreamCore<V>);
 
 impl<'a, V: Ysc2Variant> BlockSizeUser for Backend<'a, V> {
     type BlockSize = cipher::consts::U128;

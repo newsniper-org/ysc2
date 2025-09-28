@@ -1,9 +1,10 @@
-use crate::{core::Ysc2Core, Ysc2Variant};
+use crate::{stream::Ysc2StreamCore};
+use crate::variant::Ysc2Variant;
 use crate::consts::*;
 use cipher::{Block, BlockSizeUser, ParBlocksSizeUser, StreamBackend};
 
 /// The software (scalar) backend for YSC2.
-pub struct Backend<'a, V: Ysc2Variant>(pub(crate) &'a mut Ysc2Core<V>);
+pub struct Backend<'a, V: Ysc2Variant>(pub(crate) &'a mut Ysc2StreamCore<V>);
 
 impl<'a, V: Ysc2Variant> BlockSizeUser for Backend<'a, V> {
     type BlockSize = cipher::consts::U128;
@@ -29,6 +30,8 @@ impl<'a, V: Ysc2Variant> StreamBackend for Backend<'a, V> {
         }
     }
 }
+
+
 
 /// 비선형 함수 g(x) = x ^ ((x <<< A) & (x <<< B))
 #[inline(always)]

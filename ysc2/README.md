@@ -8,9 +8,9 @@ YSC2는 FHE(완전 동형 암호) 환경 친화성을 목표로 설계된 고성
 ## 프로젝트 구조
 YSC2 크레이트는 여러 모듈로 구성되어 있으며, 각 모듈은 명확한 역할을 담당합니다.
 * `src/lib.rs`: 크레이트의 진입점으로, 보안 수준별 암호 타입(`Ysc2_512Cipher`, `Ysc2_1024Cipher`)을 정의하고 외부에 공개합니다.
-* `src/core.rs`: 암호의 핵심 로직을 정의합니다.
+* `src/stream.rs`: 스트림 암호 모드의 핵심 로직을 정의합니다.
     * `Ysc2Variant` 트레잇: 키/Nonce 크기, 라운드 수 등 보안 수준별 파라미터를 추상화합니다.
-    * `Ysc2Core` 구조체: 1024비트 내부 상태와 64비트 블록 카운터를 관리합니다.
+    * `Ysc2StreamCore` 구조체: 1024비트 내부 상태와 64비트 블록 카운터를 관리합니다.
 * `src/consts.rs`: 라운드 상수, 회전 상수 등 암호 설계에 사용되는 모든 상수를 정의합니다.
 * `src/backends/mod.rs`: 컴파일 시점에 `cfg-if` 매크로를 사용하여 스칼라(`soft`) 백엔드와 SIMD(`simd`) 백엔드 중 하나를 선택합니다.
 * `src/backends/soft.rs`: 순수 Rust 코드로 작성된 스칼라 참조 구현입니다.
@@ -30,8 +30,8 @@ pub trait Ysc2Variant: Sized + Clone {
 }
 ```
 
-### Ysc2Core 구조체와 초기화
-`Ysc2Core`는 암호의 핵심 상태(`state`)와 현재 블록 위치를 나타내는 `counter`를 가집니다. `KeyIvInit` 트레잇의 `new` 함수를 통해 초기화됩니다.
+### Ysc2StreamCore 구조체와 초기화
+`Ysc2StreamCore`는 암호의 핵심 상태(`state`)와 현재 블록 위치를 나타내는 `counter`를 가집니다. `KeyIvInit` 트레잇의 `new` 함수를 통해 초기화됩니다.
     1. **상태 로드**: 1024비트(16 x 64비트) 상태 배열을 생성하고, 주어진 키와 Nonce를 명세에 따라 로드합니다.
     2. **초기 순열**: 로드된 상태에 대해 순열 함수(`permutation`)를 한 번 적용하여 키와 Nonce를 충분히 혼합합니다. 이 과정을 통해 초기 상태의 예측 불가능성을 확보합니다.
 <img src="assets/figure1.svg" />

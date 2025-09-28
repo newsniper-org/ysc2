@@ -1,0 +1,30 @@
+[package]
+name = "ysc2"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+# To use the portable SIMD backend, you must build with the nightly toolchain
+# and enable the `portable_simd` feature flag via RUSTFLAGS.
+# Example: RUSTFLAGS='--cfg ysc2_simd' cargo +nightly build
+
+[dependencies]
+cfg-if.workspace = true
+cipher.workspace = true
+digest.workspace = true
+aead.workspace = true
+zeroize.workspace = true
+crypto-common.workspace = true
+auxcrypt = { path = "../auxcrypt", optional = true }
+
+[features]
+default = []
+ysc2_simd = []
+ysc2x = []
+auxcrypt = [ "dep:auxcrypt" ]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
