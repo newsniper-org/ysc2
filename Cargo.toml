@@ -7,7 +7,7 @@ resolver = "3"
 members = ["auxcrypt", "ysc2"]
 
 [workspace.package]
-version = "0.1.0"
+version = "1.0.0"
 authors = ["NEWSNIPER"]
 edition = "2024" # Rust 2024 에디션 사용
 license = "BSD-2-Clause"
