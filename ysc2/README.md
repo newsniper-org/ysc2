@@ -70,7 +70,7 @@ YSC2는 컴파일 시점에 최적의 실행 백엔드를 선택하여 성능을
 
 ### 기본 암호화/복호화
 ```rust
-use ysc2::{Ysc2_512Cipher, cipher::{KeyIvInit, StreamCipher}};
+use ysc2::{Ysc2_512StreamCipher, cipher::{KeyIvInit, StreamCipher}};
 
 // 512비트(64바이트) 키와 Nonce 준비
 let key = [0x42; 64].into();
@@ -79,11 +79,11 @@ let nonce = [0x24; 64].into();
 let mut buffer = [1, 2, 3, 4, 5];
 
 // 암호화
-let mut cipher = Ysc2_512Cipher::new(&key, &nonce);
+let mut cipher = Ysc2_512StreamCipher::new(&key, &nonce);
 cipher.apply_keystream(&mut buffer);
 
 // 복호화 (동일한 키와 Nonce 사용)
-let mut cipher = Ysc2_512Cipher::new(&key, &nonce);
+let mut cipher = Ysc2_512StreamCipher::new(&key, &nonce);
 cipher.apply_keystream(&mut buffer);
 
 assert_eq!(buffer, [1, 2, 3, 4, 5]);

@@ -8,7 +8,7 @@ use crate::consts::STATE_WORDS;
 use crate::variant::AuxCryptVariant;
 use cipher::{
     consts::U128, BlockSizeUser, Iv, IvSizeUser, Key, KeyIvInit, KeySizeUser,
-    StreamCipherCore, StreamCipherCoreWrapper, StreamCipherSeekCore,
+    StreamCipherCore, StreamCipherCoreWrapper, StreamCipherSeekCore
 };
 use core::marker::PhantomData;
 
@@ -44,9 +44,9 @@ impl<V: AuxCryptVariant> KeyIvInit for AuxCryptCore<V> {
         }
         
         // Load IV into the second part of the state.
-        let offset = V::KEY_SIZE / 8;
+        let offset = 8;
         for (i, chunk) in iv.chunks_exact(8).enumerate() {
-            state[offset + i] = u64::from_le_bytes(chunk.try_into().unwrap());
+            state[offset + i] ^= u64::from_le_bytes(chunk.try_into().unwrap());
         }
 
         // Run an initial permutation to mix key and IV.
