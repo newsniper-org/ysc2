@@ -11,8 +11,8 @@ use aead::AeadInPlace;
 
 #[cfg(feature = "ysc2x")]
 use crate::{
-    Ysc2_1024Aead, Ysc2_1024Hash, Ysc2_1024Hasher, Ysc2_1024Mac, Ysc2_512Aead,
-    Ysc2_512Hash, Ysc2_512Hasher, Ysc2_512Mac,
+    Ysc2_1024Aead, Ysc2_1024Mac, Ysc2_512Aead,
+    Ysc2_512Hash, Ysc2_512Hasher
 };
 use crate::{
     Ysc2_1024StreamCipher, Ysc2_512StreamCipher,
