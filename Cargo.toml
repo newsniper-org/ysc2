@@ -1,6 +1,5 @@
-# To use the portable SIMD backend, you must build with the nightly toolchain
-# and enable the `portable_simd` feature flag via RUSTFLAGS.
-# Example: RUSTFLAGS='--cfg ysc2_simd' cargo +nightly build
+# To use the portable SIMD backend, you must enable the `portable_simd` feature flag via RUSTFLAGS.
+# Example: RUSTFLAGS='--cfg ysc2_simd' cargo build
 
 [workspace]
 resolver = "3"

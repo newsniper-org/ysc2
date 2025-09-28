@@ -18,7 +18,7 @@ This crate reuses a single core permutation to provide a wide range of cryptogra
 YSC2 uses feature flags to allow selective compilation, optimizing binary size by including only the necessary functionalities.
 
 - `ysc2x`: Enables all additional sponge-based features, including Hash, MAC, XOF, and AEAD.
-- `simd`: Enables the high-performance backend using `portable_simd`. (Requires a nightly toolchain)
+- `simd`: Enables the high-performance backend using `portable_simd`.
 - `auxcrypt`: Enables integration with the `auxcrypt` auxiliary cipher. (Currently, this is a placeholder for future integration)
 
 ## 📖 Design Details
